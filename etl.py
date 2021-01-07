@@ -42,8 +42,8 @@ def process_song_data(spark, input_data, output_data):
     # get filepath to song data file
     # assumes songs are stored in a tree hierarchy input_data/<X>/<Y>/<Z>
     # with <XYZ> being the 1st 3 letters of the song track ID
-    # X,Y,Z can be A,B or C
-    song_data = os.path.join(input_data, "{A,B,C}","{A,B,C}","{A,B,C}")
+    # X,Y,Z in {A,...,Z}
+    song_data = os.path.join(input_data, "*","*","*")
     
     # read song data file
     df = spark.read.json(song_data)
