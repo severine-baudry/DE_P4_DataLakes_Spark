@@ -56,7 +56,7 @@ def process_song_data(spark, input_data, output_data):
                       "duration")
     
     # write songs table to parquet files partitioned by year and artist
-    out_song = os.path.join(output_data, "SONG")
+    out_song = os.path.join(output_data, "SONGS")
     songs_table.write.partitionBy("year", "artist_id").mode("overwrite").parquet(out_song)
 
     # extract columns to create artists table
@@ -68,7 +68,7 @@ def process_song_data(spark, input_data, output_data):
                     ).distinct()
     
     # write artists table to parquet files
-    out_artist = os.path.join(output_data, "ARTIST")
+    out_artist = os.path.join(output_data, "ARTISTS")
     artists_table.write.mode("overwrite").parquet(out_artist)
 
 
@@ -109,11 +109,11 @@ def process_log_data(spark, input_data, output_data):
     time_table = df.select("ts", "hour", "day", "week", "month", "year", "weekday")           .distinct()
 
     # write time table to parquet files partitioned by year and month
-    out_time = os.path.join(output_data, "TIMESTAMP")
+    out_time = os.path.join(output_data, "TIMESTAMPS")
     time_table.write.partitionBy("year", "month").mode("overwrite").parquet(out_time)
 
     # read in song data to use for songplays table
-    song_db = os.path.join(output_data, "SONG")
+    song_db = os.path.join(output_data, "SONGS")
     song_df = spark.read.parquet(song_db)
     
     df.createOrReplaceTempView("lg")
@@ -161,7 +161,7 @@ def main():
 # In[ ]:
 
 
-def main_1():
+def main_local():
     spark = create_spark_session()
     input_data = "song_data"
     output_data="OUT"
@@ -170,12 +170,25 @@ def main_1():
     input_data = "./"
     process_log_data(spark, input_data, output_data)
 
-
+def main_test():
+    spark = create_spark_session()
+    df_users = spark.read.parquet("OUT/USERS")
+    df_songs = spark.read.parquet("OUT/SONGS")
+    df_artists = spark.read.parquet("OUT/ARTISTS")
+    df_songplays = spark.read.parquet("OUT/SONGPLAYS")
+    df_timestamps = spark.read.parquet("OUT/TIMESTAMPS")
+    
+    print("users : ", df_users.count())
+    print("songs : ", df_songs.count())
+    print("artists : ", df_artists.count())
+    print("timestamps : ", df_timestamps.count())
+    print("songplays : ", df_songplays.count())
 # In[ ]:
 
 
 if __name__ == "__main__":
-    main_1()
+    #main_local()
+    main_test()
 
 
 
