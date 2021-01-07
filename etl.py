@@ -2,7 +2,7 @@ import configparser
 from datetime import datetime
 import os
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import udf, col
+from pyspark.sql.functions import udf, col, monotonically_increasing_id
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dayofweek, date_format, from_unixtime
 from pyspark.sql.types import LongType
 
@@ -40,7 +40,7 @@ def process_song_data(spark, input_data, output_data):
                       "duration")
     
     # write songs table to parquet files partitioned by year and artist
-    out_song = os.path.join(output_data, "ARTIST")
+    out_song = os.path.join(output_data, "SONG")
     songs_table.write.partitionBy("year", "artist_id").mode("overwrite").parquet(out_song)
 
     # extract columns to create artists table
@@ -52,7 +52,7 @@ def process_song_data(spark, input_data, output_data):
                     ).distinct()
     
     # write artists table to parquet files
-    out_artist = os.path.join(output_data, "SONG")
+    out_artist = os.path.join(output_data, "ARTIST")
     artists_table.write.mode("overwrite").parquet(out_artist)
 
 
@@ -110,13 +110,39 @@ def process_log_data(spark, input_data, output_data):
     time_table.write.partitionBy("year", "month").mode("overwrite").parquet(out_time)
 
     # read in song data to use for songplays table
-    song_df = ""
-
+    song_db = os.path.join(output_data, "SONG")
+    song_df = spark.read.parquet(song_db)
+    
+    df.createOrReplaceTempView("lg")
+    song_df.createOrReplaceTempView("sg")
+    time_table.createOrReplaceTempView("tm")
     # extract columns from joined song and log datasets to create songplays table 
-    songplays_table = ""
-
+    songplays_table = spark.sql("""
+    SELECT lg.ts AS start_time,
+        tm.year AS year,
+        tm.month AS month,
+        lg.userId AS user_id,
+        lg.level,
+        sg.song_id,
+        sg.artist_id,
+        lg.sessionId AS session_id,
+        lg.location,
+        lg.userAgent AS user_agent    
+    FROM lg
+    JOIN sg ON sg.title = lg.song
+    JOIN tm ON tm.ts = lg.ts
+    """)
+    songplays_table = songplays_table.withColumn("songplay_id", monotonically_increasing_id())
+    rearrange_col = songplays_table.schema.names[:]
+    rearrange_col.insert( 0, "songplay_id")
+    rearrange_col.pop()
+    songplays_table = songplays_table.select(*rearrange_col)
+    print("COUNT SONGPLAYS", songplays_table.count())
+    
     # write songplays table to parquet files partitioned by year and month
-    #songplays_table
+    out_songplay = os.path.join(output_data, "SONGPLAYS")
+    songplays_table.write.partitionBy("year", "month").mode("overwrite").parquet(out_songplay)
+    
 
 
 def main():
@@ -131,7 +157,10 @@ def main_1():
     spark = create_spark_session()
     input_data = "song_data"
     output_data="OUT"
-    #process_song_data(spark, input_data, output_data) 
+    
+    process_song_data(spark, input_data, output_data) 
+    with open("process_song.txt", "a") as f:
+        f.write("process")
     input_data = "./"
     process_log_data(spark, input_data, output_data)
     
