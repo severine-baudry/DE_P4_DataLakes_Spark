@@ -43,11 +43,12 @@ def process_song_data(spark, input_data, output_data):
     # assumes songs are stored in a tree hierarchy input_data/<X>/<Y>/<Z>
     # with <XYZ> being the 1st 3 letters of the song track ID
     # X,Y,Z in {A,...,Z}
-    song_data = os.path.join(input_data, "*","*","*")
+    song_data = os.path.join(input_data,"song_data", "*","*","*")
     
     # read song data file
     df = spark.read.json(song_data)
 
+    print("EXTRACT SONGS")
     # extract columns to create songs table
     songs_table = df.select("song_id", 
                       "title", 
@@ -81,7 +82,7 @@ def process_log_data(spark, input_data, output_data):
 
     # read log data file
     df = spark.read.json(log_data)
-    
+    print("EXTRACT USERS")
     # filter by actions for song plays
     df = df.filter("page == 'NextSong' ")
     # extract columns for users table    
@@ -152,7 +153,7 @@ def process_log_data(spark, input_data, output_data):
 def main():
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
-    output_data = ""
+    output_data = "s3://sb-udacity-bucket/data-lakes/"
     
     process_song_data(spark, input_data, output_data)    
     process_log_data(spark, input_data, output_data)
@@ -163,11 +164,11 @@ def main():
 
 def main_local():
     spark = create_spark_session()
-    input_data = "song_data"
-    output_data="OUT"
-    
-    process_song_data(spark, input_data, output_data) 
     input_data = "./"
+    output_data="OUT"
+    print("PROCESS SONGS")
+    process_song_data(spark, input_data, output_data) 
+    print("PROCESS LOGS")
     process_log_data(spark, input_data, output_data)
 
 def main_test():
@@ -188,6 +189,7 @@ def main_test():
 
 if __name__ == "__main__":
     #main_local()
+    main()
     main_test()
 
 
