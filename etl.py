@@ -176,11 +176,11 @@ def main_test():
     
     output_data = "hdfs:///user/sparkify/"
 
-    df_users = spark.read.parquet( os.path.join(ouput_data, "USERS"))
-    df_songs = spark.read.parquet(os.path.join(ouput_data, "SONGS"))
-    df_artists = spark.read.parquet(os.path.join(ouput_data, "ARTISTS"))
-    df_songplays = spark.read.parquet(os.path.join(ouput_data, "SONGPLAYS"))
-    df_timestamps = spark.read.parquet(os.path.join(ouput_data, "TIMESTAMPS"))
+    df_users = spark.read.parquet( os.path.join(output_data, "USERS"))
+    df_songs = spark.read.parquet(os.path.join(output_data, "SONGS"))
+    df_artists = spark.read.parquet(os.path.join(output_data, "ARTISTS"))
+    df_songplays = spark.read.parquet(os.path.join(output_data, "SONGPLAYS"))
+    df_timestamps = spark.read.parquet(os.path.join(output_data, "TIMESTAMPS"))
 
     print("users : ", df_users.count())
     print("songs : ", df_songs.count())
