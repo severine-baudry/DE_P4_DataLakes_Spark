@@ -11,7 +11,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf, col, monotonically_increasing_id
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dayofweek, date_format, from_unixtime
 from pyspark.sql.types import LongType
-
+import argparse
 
 # In[ ]:
 
@@ -150,10 +150,10 @@ def process_log_data(spark, input_data, output_data):
 # In[ ]:
 
 
-def main():
+def main(output_data):
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
-    output_data = "hdfs:///user/sparkify/"
+    #output_data = "hdfs:///user/sparkify/"
     
     process_song_data(spark, input_data, output_data)    
     process_log_data(spark, input_data, output_data)
@@ -171,10 +171,10 @@ def main_local():
     print("PROCESS LOGS")
     process_log_data(spark, input_data, output_data)
 
-def main_test():
+def main_test(output_data):
     spark = create_spark_session()
     
-    output_data = "hdfs:///user/sparkify/"
+    #output_data = "hdfs:///user/sparkify/"
 
     df_users = spark.read.parquet( os.path.join(output_data, "USERS"))
     df_songs = spark.read.parquet(os.path.join(output_data, "SONGS"))
@@ -207,8 +207,12 @@ def main_test_local():
 
 if __name__ == "__main__":
     #main_local()
-    main()
-    main_test()
-
-
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--out", help = "output directory (S3 or HDFS)", required = True)
+    l_args = parser.parse_args()
+    
+    print("Outputing tables to ", l_args.out)
+    main(l_args.out)
+    main_test(l_args.out)
 
