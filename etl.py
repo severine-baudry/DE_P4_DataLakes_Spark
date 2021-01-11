@@ -153,9 +153,9 @@ def process_log_data(spark, input_data, output_data):
 def main():
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
-    output_data = "./OUT/"
+    output_data = "hdfs:///user/sparkify/"
     
-    #process_song_data(spark, input_data, output_data)    
+    process_song_data(spark, input_data, output_data)    
     process_log_data(spark, input_data, output_data)
 
 
@@ -165,13 +165,31 @@ def main():
 def main_local():
     spark = create_spark_session()
     input_data = "./"
-    output_data="OUT"
+    output_data="/"
     print("PROCESS SONGS")
     process_song_data(spark, input_data, output_data) 
     print("PROCESS LOGS")
     process_log_data(spark, input_data, output_data)
 
 def main_test():
+    spark = create_spark_session()
+    
+    output_data = "hdfs:///user/sparkify/"
+
+    df_users = spark.read.parquet( os.path.join(ouput_data, "USERS"))
+    df_songs = spark.read.parquet(os.path.join(ouput_data, "SONGS"))
+    df_artists = spark.read.parquet(os.path.join(ouput_data, "ARTISTS"))
+    df_songplays = spark.read.parquet(os.path.join(ouput_data, "SONGPLAYS"))
+    df_timestamps = spark.read.parquet(os.path.join(ouput_data, "TIMESTAMPS"))
+
+    print("users : ", df_users.count())
+    print("songs : ", df_songs.count())
+    print("artists : ", df_artists.count())
+    print("timestamps : ", df_timestamps.count())
+    print("songplays : ", df_songplays.count())
+
+def main_test_local():
+
     spark = create_spark_session()
     df_users = spark.read.parquet("OUT/USERS")
     df_songs = spark.read.parquet("OUT/SONGS")
