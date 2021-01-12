@@ -1,6 +1,6 @@
-# Schema for songplay analysis
+# Sparkify Datalake
 
-This project creates a database of songs and of user activity on the Sparkify streaming app. It arranges the raw information in a star-schema database centered on song plays.
+This project creates a database of songs and of user activity on the Sparkify streaming app. It arranges the raw information in a star-schema database centered on song plays. The project is emplemented in Pyspark, so that tables can be extracted on AWS EMR (Elastic Map Reduce) to handle efficiently large databases. 
 
 
 # Database structure
@@ -50,12 +50,18 @@ The data used to populate the database is stored in S3 buckets :
 
 To create and populate the sparkifydb database, open a terminal and run 
 
- `python etl.py`
+ `python etl.py --out output_directory`
+ 
+ `output_directory` may be HDFS or S3, for instance :
+ 
+ `python etl.py --out s3a://mybucket/sparkify/`
+ 
+ `python etl.py --out hdfs:///user/sparkify/`
     
 
 ### Example queries
 The star database design makes the database queries easy. For instance, if the analytics teams want to know what songs in the database have been played through the app, they can issue a simple sql query. 
-Exemples of queries on the database are given in `songplayDB_example.ipynb`
+Queries may be issued in SQL, or in pyspark 'panda-like' query language. Exemples of queries on the database in pyspark are given in `example_queries.ipynb`
 
 # Changelog
 
