@@ -32,7 +32,7 @@ export PYTHONPATH=$SPARK_HOME/python/lib/py4j-src.zip:$PYTHONPATH
 export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/build:$PYTHONPATH
 `
 
-Alternatively, these variables can be set automatically with a bootstrap script when launching the EMR cluster.
+Alternatively, these variables can be set automatically with a bootstrap script when launching the EMR cluster (script `EMR_bootstrap.sh`)
 
 To enable access to S3, you have to set a file `dl.cfg` with your AWS access key from [AWS security credentials](https://console.aws.amazon.com/iam/home?region=us-west-2#/security_credentials). We have provided you with a template file `dl_template.cfg`
 
