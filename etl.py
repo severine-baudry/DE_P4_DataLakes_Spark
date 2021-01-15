@@ -31,6 +31,9 @@ os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS']['SECRET_ACCESS_KEY']
 
 
 def create_spark_session():
+    '''
+    create a spark session supporting hadopp and aws
+    '''
     spark = SparkSession         .builder         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0")         .getOrCreate()
     return spark
 
@@ -39,6 +42,13 @@ def create_spark_session():
 
 
 def process_song_data(spark, input_data, output_data):
+    '''
+    load and process song json files
+    input data is the song directory     
+    output data is the output directory for star-schema tables (can be a S3 or HDFS bucket)
+    input songs files should be stored in a tree hierarchy : <intput_data>/<X>/<Y>/<Z>
+    with <XYZ> being the first 3 letters of the song track ID
+    '''
     # get filepath to song data file
     # assumes songs are stored in a tree hierarchy input_data/<X>/<Y>/<Z>
     # with <XYZ> being the 1st 3 letters of the song track ID
@@ -77,6 +87,12 @@ def process_song_data(spark, input_data, output_data):
 
 
 def process_log_data(spark, input_data, output_data):
+    '''
+    load and process log json files
+    input data is the log directory     
+    output data is the output directory for star-schema tables (can be a S3 or HDFS bucket)
+    input logs files should be stored in a tree hierarchy : <input_data>/<year>/<month>
+    '''
     # get filepath to log data file
     log_data = os.path.join(input_data, "log_data", "*", "*")
 
@@ -151,6 +167,11 @@ def process_log_data(spark, input_data, output_data):
 
 
 def main(output_data):
+    '''
+    ETL process : create a spark session, load and process song and log data,
+    write star-schema tables in <output_data> in directories :
+    SONGS, ARTISTS, USERS, TIMESTAMPS, SONGPLAYS
+    '''
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
     #output_data = "hdfs:///user/sparkify/"
@@ -163,6 +184,11 @@ def main(output_data):
 
 
 def main_local():
+    '''
+    for testing purposes : perform the whole ETL process locally
+    load and process local songs and logs tables,
+    write the star-schema tables locally
+    '''
     spark = create_spark_session()
     input_data = "./"
     output_data="/"
@@ -172,6 +198,10 @@ def main_local():
     process_log_data(spark, input_data, output_data)
 
 def main_test(output_data):
+    '''
+    quick test of ETL : check that the star-schema tables have been created and are readable
+    count the number of rows in each table.
+    '''
     spark = create_spark_session()
     
     #output_data = "hdfs:///user/sparkify/"
@@ -189,7 +219,10 @@ def main_test(output_data):
     print("songplays : ", df_songplays.count())
 
 def main_test_local():
-
+    '''
+    test local creation of star-schema table: check that the star-schema tables have been created and are readable.
+    count the number of rows in each table.
+    '''
     spark = create_spark_session()
     df_users = spark.read.parquet("OUT/USERS")
     df_songs = spark.read.parquet("OUT/SONGS")
@@ -213,6 +246,8 @@ if __name__ == "__main__":
     l_args = parser.parse_args()
     
     print("Outputing tables to ", l_args.out)
+    # extract songs and logs data, write star-schema tables
     main(l_args.out)
+    # test the 
     main_test(l_args.out)
 
