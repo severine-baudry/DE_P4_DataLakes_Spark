@@ -67,3 +67,6 @@ Queries may be issued in SQL, or in pyspark 'panda-like' query language. Exemple
 
 # v1.0
 First version submitted to Udacity platform.
+
+# v1.1
+Add docstrings to python functions
